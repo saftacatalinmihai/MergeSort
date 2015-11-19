@@ -78,8 +78,7 @@ is_deeply(merge_sort([5,2,4,1,3,7,6,9,2,5,1,7,9]), [1,1,2,2,3,4,5,5,6,7,7,9,9]);
 done_testing();
 
 sub first {
-    my $l = shift;
-    return $l->[0];
+    return shift->[0];
 }
 
 sub rest {
@@ -99,18 +98,26 @@ sub is_empty{
     return scalar @{$l} == 0;
 }
 
-sub first_half {
-    my $l = shift;
+sub half_from_to {
+    my ($low_bown, $high_bound, $l) = @_;
     my $size = size_of($l);
     return [] if is_empty($l);
-    my @fh = @{$l}[0..($size/2)-0.5];
+    my @fh = @{$l}[$low_bown->($size)..$high_bound->($size)];
     return \@fh;
 }
 
+sub first_half {
+    return half_from_to(
+        sub {0},
+        sub {my ($size) = @_; ($size/2)-0.5},
+        shift
+    );
+}
+
 sub second_half {
-    my $l = shift;
-    my $size = size_of($l);
-    return [] if is_empty($l);
-    my @fh = @{$l}[($size/2)+0.5..$size-1];
-    return \@fh;
+    return half_from_to(
+        sub{my ($size) = @_; ($size/2)+0.5},
+        sub{my ($size) = @_; $size - 1},
+        shift
+    );
 }
