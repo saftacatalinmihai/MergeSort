@@ -8,16 +8,12 @@ use Test::More;
 # Main function
 sub merge_sort{
     my ($list, $cmp_f) = @_;
-    my $cmp_fct = $cmp_f ? $cmp_f : sub {
-        shift() < shift()
-    };
-
     return [] if is_empty($list);
     return first_half($list) if is_empty(second_half($list));
     return merge(
-        merge_sort(first_half($list), $cmp_fct),
-        merge_sort(second_half($list), $cmp_fct),
-        $cmp_fct
+        merge_sort(first_half($list), $cmp_f),
+        merge_sort(second_half($list), $cmp_f),
+        $cmp_f
     );
 }
 
@@ -31,15 +27,18 @@ sub merge {
 # Recursive definition of merging
 sub _merge {
     my ($merged, $l1, $l2, $cmp_f) = @_;
+    my $cmp_fct = $cmp_f ? $cmp_f : sub {
+        shift() < shift()
+    };
     return (@{$merged}, @{$l2}) if is_empty($l1);
     return (@{$merged}, @{$l1}) if is_empty($l2);
 
-    if ($cmp_f->(first($l1), first($l2))) {
+    if ($cmp_fct->(first($l1), first($l2))) {
         my @next_merged = (@{$merged}, first($l1));
-        return _merge(\@next_merged, rest($l1), $l2, $cmp_f);
+        return _merge(\@next_merged, rest($l1), $l2, $cmp_fct);
     } else {
         my @next_merged = (@{$merged}, first($l2));
-        return _merge(\@next_merged, $l1, rest($l2), $cmp_f);
+        return _merge(\@next_merged, $l1, rest($l2), $cmp_fct);
     }
 }
 
