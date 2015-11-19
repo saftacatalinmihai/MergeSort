@@ -10,7 +10,10 @@ sub merge_sort{
     my $list = shift;
     return [] if is_empty($list);
     return first_half($list) if is_empty(second_half($list));
-    return merge(merge_sort(first_half($list)), merge_sort(second_half($list)));
+    return merge(
+        merge_sort(first_half($list)),
+        merge_sort(second_half($list))
+    );
 }
 
 # The merge part
@@ -23,8 +26,8 @@ sub merge {
 # Recursive definition of merging
 sub _merge {
     my ($merged, $l1, $l2) = @_;
-    if ( is_empty($l1)) { return ( @{$merged}, @{$l2})};
-    if ( is_empty($l2)) { return ( @{$merged}, @{$l1})};
+    return (@{$merged}, @{$l2}) if is_empty($l1);
+    return (@{$merged}, @{$l1}) if is_empty($l2);
 
     if (first($l1) < first($l2)){
         my @next_merged = (@{$merged}, first($l1));
