@@ -6,11 +6,11 @@ use Data::Dumper;
 use Test::More;
 
 # Main function
-sub m_sort{
+sub merge_sort{
     my $list = shift;
     return [] if is_empty($list);
     return first_half($list) if is_empty(second_half($list));
-    return merge(m_sort(first_half($list)), m_sort(second_half($list)));
+    return merge(merge_sort(first_half($list)), merge_sort(second_half($list)));
 }
 
 # The merge part
@@ -60,17 +60,17 @@ is_deeply(second_half([1,2,3]), [3]);
 is_deeply(second_half([1,2,3,4]), [3,4]);
 is_deeply(second_half([1,2,3,4,5]), [4,5]);
 
-is_deeply(m_sort([1,5,2,3]), [1,2,3,5]);
-is_deeply(m_sort([]), []);
-is_deeply(m_sort([1]), [1]);
-is_deeply(m_sort([2,1]), [1,2]);
-is_deeply(m_sort([3,1,2]), [1,2,3]);
-is_deeply(m_sort([3,2,1]), [1,2,3]);
-is_deeply(m_sort([1,2,3]), [1,2,3]);
-is_deeply(m_sort([1,2,3,4]), [1,2,3,4]);
-is_deeply(m_sort([1,4,3,2]), [1,2,3,4]);
-is_deeply(m_sort([3,4,1,2]), [1,2,3,4]);
-is_deeply(m_sort([5,2,4,1,3,7,6,9,2,5,1,7,9]), [1,1,2,2,3,4,5,5,6,7,7,9,9]);
+is_deeply(merge_sort([1,5,2,3]), [1,2,3,5]);
+is_deeply(merge_sort([]), []);
+is_deeply(merge_sort([1]), [1]);
+is_deeply(merge_sort([2,1]), [1,2]);
+is_deeply(merge_sort([3,1,2]), [1,2,3]);
+is_deeply(merge_sort([3,2,1]), [1,2,3]);
+is_deeply(merge_sort([1,2,3]), [1,2,3]);
+is_deeply(merge_sort([1,2,3,4]), [1,2,3,4]);
+is_deeply(merge_sort([1,4,3,2]), [1,2,3,4]);
+is_deeply(merge_sort([3,4,1,2]), [1,2,3,4]);
+is_deeply(merge_sort([5,2,4,1,3,7,6,9,2,5,1,7,9]), [1,1,2,2,3,4,5,5,6,7,7,9,9]);
 
 done_testing();
 
