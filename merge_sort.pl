@@ -8,8 +8,8 @@ use Test::More;
 # Main function
 sub m_sort{
     my $list = shift;
-    return [] if isEmpty($list);
-    return first_half($list) if isEmpty(second_half($list));
+    return [] if is_empty($list);
+    return first_half($list) if is_empty(second_half($list));
     return merge(m_sort(first_half($list)), m_sort(second_half($list)));
 }
 
@@ -23,8 +23,8 @@ sub merge {
 # Recursive definition of merging
 sub _merge {
     my ($merged, $l1, $l2) = @_;
-    if ( isEmpty($l1)) { return ( @{$merged}, @{$l2})};
-    if ( isEmpty($l2)) { return ( @{$merged}, @{$l1})};
+    if ( is_empty($l1)) { return ( @{$merged}, @{$l2})};
+    if ( is_empty($l2)) { return ( @{$merged}, @{$l1})};
 
     if (first($l1) < first($l2)){
         my @next_merged = (@{$merged}, first($l1));
@@ -81,33 +81,33 @@ sub first {
 
 sub rest {
     my $l = shift;
-    my $len = sizeof($l);
+    my $len = size_of($l);
     my @rest = @{$l}[1..$len-1];
     return \@rest;
 }
 
-sub sizeof {
+sub size_of {
     my $l = shift;
     return scalar @{$l};
 }
 
-sub isEmpty{
+sub is_empty{
     my $l = shift;
     return scalar @{$l} == 0;
 }
 
 sub first_half {
     my $l = shift;
-    my $size = sizeof($l);
-    return [] if isEmpty($l);
+    my $size = size_of($l);
+    return [] if is_empty($l);
     my @fh = @{$l}[0..($size/2)-0.5];
     return \@fh;
 }
 
 sub second_half {
     my $l = shift;
-    my $size = sizeof($l);
-    return [] if isEmpty($l);
+    my $size = size_of($l);
+    return [] if is_empty($l);
     my @fh = @{$l}[($size/2)+0.5..$size-1];
     return \@fh;
 }
