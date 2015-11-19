@@ -5,28 +5,22 @@ use Data::Printer;
 use Data::Dumper;
 use Test::More;
 
-sub first {
-    my $l = shift;
-    return $l->[0];
+# Main function
+sub m_sort{
+    my $list = shift;
+    return [] if isEmpty($list);
+    return first_half($list) if isEmpty(second_half($list));
+    return merge(m_sort(first_half($list)), m_sort(second_half($list)));
 }
 
-sub rest {
-    my $l = shift;
-    my $len = sizeof($l);
-    my @rest = @{$l}[1..$len-1];
-    return \@rest;
+# The merge part
+sub merge {
+    my ($li1, $li2) = @_;
+    my @merged = _merge([], $li1, $li2);
+    return \@merged;
 }
 
-sub sizeof {
-    my $l = shift;
-    return scalar @{$l};
-}
-
-sub isEmpty{
-    my $l = shift;
-    return scalar @{$l} == 0;
-}
-
+# Recursive definition of merging
 sub _merge {
     my ($merged, $l1, $l2) = @_;
     if ( isEmpty($l1)) { return ( @{$merged}, @{$l2})};
@@ -39,35 +33,6 @@ sub _merge {
         my @next_merged = (@{$merged}, first($l2));
         return _merge(\@next_merged, $l1, rest($l2));
     }
-}
-
-sub merge {
-    my ($li1, $li2) = @_;
-    my @merged = _merge([], $li1, $li2);
-    return \@merged;
-}
-
-sub first_half {
-    my $l = shift;
-    my $size = sizeof($l);
-    return [] if isEmpty($l);
-    my @fh = @{$l}[0..($size/2)-0.5];
-    return \@fh;
-}
-
-sub second_half {
-    my $l = shift;
-    my $size = sizeof($l);
-    return [] if isEmpty($l);
-    my @fh = @{$l}[($size/2)+0.5..$size-1];
-    return \@fh;
-}
-
-sub m_sort{
-    my $list = shift;
-    return [] if isEmpty($list);
-    return first_half($list) if isEmpty(second_half($list));
-    return merge(m_sort(first_half($list)), m_sort(second_half($list)));
 }
 
 is_deeply(merge ([1,3], [2,4]), [1,2,3,4]);
@@ -108,3 +73,41 @@ is_deeply(m_sort([3,4,1,2]), [1,2,3,4]);
 is_deeply(m_sort([5,2,4,1,3,7,6,9,2,5,1,7,9]), [1,1,2,2,3,4,5,5,6,7,7,9,9]);
 
 done_testing();
+
+sub first {
+    my $l = shift;
+    return $l->[0];
+}
+
+sub rest {
+    my $l = shift;
+    my $len = sizeof($l);
+    my @rest = @{$l}[1..$len-1];
+    return \@rest;
+}
+
+sub sizeof {
+    my $l = shift;
+    return scalar @{$l};
+}
+
+sub isEmpty{
+    my $l = shift;
+    return scalar @{$l} == 0;
+}
+
+sub first_half {
+    my $l = shift;
+    my $size = sizeof($l);
+    return [] if isEmpty($l);
+    my @fh = @{$l}[0..($size/2)-0.5];
+    return \@fh;
+}
+
+sub second_half {
+    my $l = shift;
+    my $size = sizeof($l);
+    return [] if isEmpty($l);
+    my @fh = @{$l}[($size/2)+0.5..$size-1];
+    return \@fh;
+}
