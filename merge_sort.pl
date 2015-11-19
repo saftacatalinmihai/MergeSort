@@ -7,46 +7,72 @@ use Test::More;
 
 # Main function
 sub merge_sort{
-    my $list = shift;
+    my ($list, $cmp_f) = @_;
+    my $cmp_fct = $cmp_f ? $cmp_f : sub {
+        shift() < shift()
+    };
+
     return [] if is_empty($list);
     return first_half($list) if is_empty(second_half($list));
     return merge(
-        merge_sort(first_half($list)),
-        merge_sort(second_half($list))
+        merge_sort(first_half($list), $cmp_fct),
+        merge_sort(second_half($list), $cmp_fct),
+        $cmp_fct
     );
 }
 
 # The merge part
 sub merge {
-    my ($li1, $li2) = @_;
-    my @merged = _merge([], $li1, $li2);
+    my ($li1, $li2, $cmp_f) = @_;
+    my @merged = _merge([], $li1, $li2, $cmp_f);
     return \@merged;
 }
 
 # Recursive definition of merging
 sub _merge {
-    my ($merged, $l1, $l2) = @_;
+    my ($merged, $l1, $l2, $cmp_f) = @_;
     return (@{$merged}, @{$l2}) if is_empty($l1);
     return (@{$merged}, @{$l1}) if is_empty($l2);
 
-    if (first($l1) < first($l2)){
+    if ($cmp_f->(first($l1), first($l2))) {
         my @next_merged = (@{$merged}, first($l1));
-        return _merge(\@next_merged, rest($l1), $l2);
+        return _merge(\@next_merged, rest($l1), $l2, $cmp_f);
     } else {
         my @next_merged = (@{$merged}, first($l2));
-        return _merge(\@next_merged, $l1, rest($l2));
+        return _merge(\@next_merged, $l1, rest($l2), $cmp_f);
     }
 }
 
-is_deeply(merge ([1,3], [2,4]), [1,2,3,4]);
-is_deeply(merge ([1,2], [3,4]), [1,2,3,4]);
-is_deeply(merge ([2,3], [1,4]), [1,2,3,4]);
-is_deeply(merge ([1, 2,3], [1,2, 4]), [1,1,2,2,3,4]);
-is_deeply(merge ([3, 4, 7], [1,5,7]), [1,3,4,5,7,7]);
+my $ascending = sub {
+    my ($a, $b) = @_;
+    return $a < $b
+};
+
+is_deeply(merge_sort([1, 5, 2, 3]), [1, 2, 3, 5]);
+is_deeply(merge_sort([], $ascending), []);
+is_deeply(merge_sort([1]), [1]);
+is_deeply(merge_sort([2, 1], $ascending), [1, 2]);
+is_deeply(merge_sort([3, 1, 2]), [1, 2, 3]);
+is_deeply(merge_sort([3, 2, 1]), [1, 2, 3]);
+is_deeply(merge_sort([1, 2, 3], $ascending), [1, 2, 3]);
+is_deeply(merge_sort([1, 2, 3, 4]), [1, 2, 3, 4]);
+is_deeply(merge_sort([1, 4, 3, 2], $ascending), [1, 2, 3, 4]);
+is_deeply(merge_sort([3, 4, 1, 2]), [1, 2, 3, 4]);
+is_deeply(merge_sort([5, 2, 4, 1, 3, 7, 6, 9, 2, 5, 1, 7, 9], $ascending), [1, 1, 2, 2, 3, 4, 5, 5, 6, 7, 7, 9, 9]);
+
+is_deeply(merge_sort([5, 2, 4, 1, 3, 7, 6, 9, 2, 5, 1, 7, 9], sub {
+    return shift > shift
+}), [9, 9, 7, 7, 6, 5, 5, 4, 3, 2, 2, 1, 1]);
+
+is_deeply(merge ([1, 3], [2, 4], $ascending ), [1, 2, 3, 4]);
+is_deeply(merge ([1, 2], [3, 4], $ascending), [1, 2, 3, 4]);
+is_deeply(merge ([2, 3], [1, 4], $ascending), [1, 2, 3, 4]);
+is_deeply(merge ([1, 2, 3], [1, 2, 4], $ascending), [1, 1, 2, 2, 3, 4]);
+is_deeply(merge ([3, 4, 7], [1, 5, 7], $ascending), [1, 3, 4, 5, 7, 7]);
 my $l = [1,2,3];
 is(first($l), 1);
 is_deeply(rest($l), [2,3]);
-is_deeply(merge([1,3,4], [2]), [1,2,3,4]);
+is_deeply(merge([1, 3, 4], [2], $ascending), [1, 2, 3, 4]);
 
 is_deeply(first_half([1,2,3]),[1,2]);
 is_deeply(second_half([1,2,3]), [3]);
@@ -62,18 +88,6 @@ is_deeply(second_half([1,2]), [2]);
 is_deeply(second_half([1,2,3]), [3]);
 is_deeply(second_half([1,2,3,4]), [3,4]);
 is_deeply(second_half([1,2,3,4,5]), [4,5]);
-
-is_deeply(merge_sort([1,5,2,3]), [1,2,3,5]);
-is_deeply(merge_sort([]), []);
-is_deeply(merge_sort([1]), [1]);
-is_deeply(merge_sort([2,1]), [1,2]);
-is_deeply(merge_sort([3,1,2]), [1,2,3]);
-is_deeply(merge_sort([3,2,1]), [1,2,3]);
-is_deeply(merge_sort([1,2,3]), [1,2,3]);
-is_deeply(merge_sort([1,2,3,4]), [1,2,3,4]);
-is_deeply(merge_sort([1,4,3,2]), [1,2,3,4]);
-is_deeply(merge_sort([3,4,1,2]), [1,2,3,4]);
-is_deeply(merge_sort([5,2,4,1,3,7,6,9,2,5,1,7,9]), [1,1,2,2,3,4,5,5,6,7,7,9,9]);
 
 done_testing();
 
